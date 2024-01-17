@@ -29,7 +29,7 @@ Open Intrepeter: https://github.com/KillianLucas/open-interpreter/
 - [x] Build basic script that takes in natural language command line instruction and executes using LLM 
 - [x] Create symlink
 - [ ] Performance improvement through prompt engineering
-- [ ] Improve user experience by adding confirmation before execution
+- [ ] Add confirmation before execution
 - [ ] Add reasoning and explanation
 - [ ] Prettify product
 
