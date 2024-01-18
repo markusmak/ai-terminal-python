@@ -22,7 +22,7 @@ alias ai="source {pwd}/ai-terminal/bin/activate; {pwd}/ai-terminal-python/ai-rea
 
 ## How to Use
 Invoke with `ai 'query'`
-
+https://github.com/markusmak/ai-terminal-python/assets/54108129/26a403f6-1938-42a9-aaa3-abfa9aabc115
 
 ## Inspirations
 - Open Intrepeter: https://github.com/KillianLucas/open-interpreter/
