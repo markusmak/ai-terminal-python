@@ -21,7 +21,7 @@ alias ai="source {pwd}/ai-terminal/bin/activate; {pwd}/ai-terminal-python/ai-rea
 ```
 
 ## How to Use
-
+Invoke with `ai 'query'`
 
 
 ## Inspirations
