@@ -1,10 +1,12 @@
-# Original script without react
-
 #!/usr/bin/env python3
+
+# New script with react and user confirmation
 import subprocess
 import shlex
 from argparse import ArgumentParser
 import os
+import platform
+import yaml
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -16,6 +18,8 @@ from langchain.agents.format_scratchpad import format_to_openai_function_message
 from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
 from langchain.agents import AgentExecutor
 from langchain_core.messages import AIMessage, HumanMessage
+from langchain import hub
+
 
 MEMORY_KEY = "chat_history"
 chat_history = []
@@ -26,23 +30,39 @@ llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 def commandLineTool(query: str) -> int:
     """Takes in the command line query, executes the query and prints the results. This tool uses the subprocess.run() module."""
     query = shlex.split(query)
-    print(query)
     path = os.path.dirname(os.path.realpath(__file__)) 
     print(path)
     completed_process = subprocess.run(query, shell=False, capture_output=True, encoding="utf-8", cwd=path)
     return completed_process.stdout
 
+def get_machine_info():
+    shell = platform.system()
+    shell_release = platform.release()
+    shell_version = platform.version()
+    machine_type = platform.machine()
+    working_directory = os.getcwd()
+    package_managers = "pip3"
+    return shell, shell_release, shell_version, machine_type, working_directory, package_managers
 
-tools = [commandLineTool]
+
+tools = [ commandLineTool ]
+
+prompts = yaml.load(
+        open(os.path.join(os.path.dirname(__file__), "prompts.yaml"), "r"),
+        Loader=yaml.FullLoader
+    )
+
+user = prompts['main']['user']
+shell, shell_release, shell_version, machine_type, working_directory, package_managers = get_machine_info()
+system = prompts['main']['system'].format(
+    shell=shell, shell_release=shell_release, shell_version=shell_version, machine_type=machine_type, working_directory=working_directory, package_managers=package_managers
+)
 
 prompt = ChatPromptTemplate.from_messages(
     [
-        (
-            "system",
-            "You are very powerful command line assistant. Your job is to take in command line queries, execute them using the command line tool provided, and outputs the reuslts. Return strictly the output from the Command Line Tool exactly as it is. Do not rephrase. ",
-        ),
+        ("system", system),
         MessagesPlaceholder(variable_name=MEMORY_KEY),
-        ("user", "{input}"),
+        ("user", user),
         MessagesPlaceholder(variable_name="agent_scratchpad"),
     ]
 )
@@ -56,11 +76,14 @@ agent = (
             x["intermediate_steps"]
         ),
         "chat_history": lambda x: x["chat_history"],
+        "tools": lambda _: tools,
+        "tool_names": lambda _: [t.name for t in tools],
     }
     | prompt
     | llm_with_tools
     | OpenAIFunctionsAgentOutputParser()
 )
+
 # agent.get_graph().print_ascii()
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 

@@ -1,4 +1,4 @@
-# New script with react and user confirmation
+# Original script without react
 
 #!/usr/bin/env python3
 import subprocess
@@ -16,45 +16,24 @@ from langchain.agents.format_scratchpad import format_to_openai_function_message
 from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
 from langchain.agents import AgentExecutor
 from langchain_core.messages import AIMessage, HumanMessage
-from langchain import hub
-
-
-MEMORY_KEY = "chat_history"
-chat_history = []
-
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
 @tool
 def commandLineTool(query: str) -> int:
     """Takes in the command line query, executes the query and prints the results. This tool uses the subprocess.run() module."""
     query = shlex.split(query)
+    print(query)
     path = os.path.dirname(os.path.realpath(__file__)) 
     print(path)
     completed_process = subprocess.run(query, shell=False, capture_output=True, encoding="utf-8", cwd=path)
     return completed_process.stdout
 
 
+
+MEMORY_KEY = "chat_history"
+chat_history = []
+
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 tools = [commandLineTool]
-
-user_input_prompt = """Answer the following questions as best you can. You have access to the following tools:
-
-{tools}
-
-Use the following format:
-
-Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
-Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat N times)
-Thought: I now know the final answer
-Final Answer: the final answer to the original input question
-
-Begin!
-
-Question: {input}
-Thought:{agent_scratchpad}"""
 
 prompt = ChatPromptTemplate.from_messages(
     [
@@ -63,7 +42,7 @@ prompt = ChatPromptTemplate.from_messages(
             "You are very powerful command line assistant. Your job is to take in command line queries, execute them using the command line tool provided, and outputs the reuslts. Return strictly the output from the Command Line Tool exactly as it is. Do not rephrase. ",
         ),
         MessagesPlaceholder(variable_name=MEMORY_KEY),
-        ("user", user_input_prompt),
+        ("user", "{input}"),
         MessagesPlaceholder(variable_name="agent_scratchpad"),
     ]
 )
@@ -77,28 +56,25 @@ agent = (
             x["intermediate_steps"]
         ),
         "chat_history": lambda x: x["chat_history"],
-        "tools": lambda _: tools,
-        "tool_names": lambda _: [t.name for t in tools]
     }
     | prompt
     | llm_with_tools
     | OpenAIFunctionsAgentOutputParser()
 )
-agent.get_graph().print_ascii()
+# agent.get_graph().print_ascii()
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
 parser = ArgumentParser()
 parser.add_argument("input")
 args = parser.parse_args()
-input_1 = args.input
+input = args.input
 
-result_1 = agent_executor.invoke({"input": input_1, "chat_history": chat_history})
+result = agent_executor.invoke({"input": input, "chat_history": chat_history})
 
 chat_history.extend(
     [
-        HumanMessage(content=input_1),
-        AIMessage(content=result_1["output"]),
+        HumanMessage(content=input),
+        AIMessage(content=result["output"]),
     ]
 )
-
-print(result_1["output"])
+print(f"Results: {result['output']}")
