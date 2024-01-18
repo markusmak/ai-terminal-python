@@ -1,6 +1,6 @@
 # AI Powered Terminal Copilot
-Build an AI terminal that takes in natural language instructions
-Time Spent: 15 hours spent in total
+- Build an AI terminal that takes in natural language instructions
+- Time Spent: 15 hours spent in total
 
 ## Install Instructions
 
