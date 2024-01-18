@@ -31,9 +31,21 @@ def commandLineTool(query: str) -> int:
     """Takes in the command line query, executes the query and prints the results. This tool uses the subprocess.run() module."""
     query = shlex.split(query)
     path = os.path.dirname(os.path.realpath(__file__)) 
-    print(path)
     completed_process = subprocess.run(query, shell=False, capture_output=True, encoding="utf-8", cwd=path)
     return completed_process.stdout
+
+@tool
+def ConfirmationTool(query: str):
+    """When user input is necessary to confirm with user for execution of terminal commands"""
+    answer = input(f"The command is /{query}/ and may involve making certain changes. Say yes/no to continue.")
+    if answer.lower() in ["y","yes"]:
+        return True
+    elif answer.lower() in ["n","no"]:
+        return False
+    else:
+        print("Invalid input. Please re-submit...")
+        return ConfirmationTool(query)
+
 
 def get_machine_info():
     shell = platform.system()
@@ -101,4 +113,4 @@ chat_history.extend(
     ]
 )
 
-print(result_1["output"])
+# print(result_1["output"])

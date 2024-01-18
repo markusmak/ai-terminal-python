@@ -18,7 +18,7 @@ from langchain.agents import AgentExecutor
 from langchain_core.messages import AIMessage, HumanMessage
 
 @tool
-def commandLineTool(query: str) -> int:
+def commandLineTool(query: str):
     """Takes in the command line query, executes the query and prints the results. This tool uses the subprocess.run() module."""
     query = shlex.split(query)
     print(query)
@@ -26,8 +26,6 @@ def commandLineTool(query: str) -> int:
     print(path)
     completed_process = subprocess.run(query, shell=False, capture_output=True, encoding="utf-8", cwd=path)
     return completed_process.stdout
-
-
 
 MEMORY_KEY = "chat_history"
 chat_history = []

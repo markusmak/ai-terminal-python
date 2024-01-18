@@ -20,11 +20,11 @@ main:
   Use the following format:
 
   Question: the input question you must answer
-  Thought: think about this step by step; break down tasks into sub-tasks complete them individually.
-  Action: the action to take, should be one of [{tool_names}]
+  Thought: think about the question step by step; break down tasks into sub-tasks complete them individually.
+  Action: the action to take, should use [CommandLinetool]
   Action Input: the input to the action
   Observation: the result of the action
-  Evaluation: evaluate the result of the action using one of [{tool_names}]if necessary; decide whether the task is completed and whether next steps or re-start are necessary. 
+  Evaluation: evaluate the result of the action using read-only commands [CommandLinetool] if necessary; decide whether the task is completed and whether next steps or re-start are necessary. 
   ... (this Thought/Action/Action Input/Observation/Evaluation can repeat as many time until the task is completed)
   Thought: I now know the final answer
   Final Answer: the final answer to the original input question
